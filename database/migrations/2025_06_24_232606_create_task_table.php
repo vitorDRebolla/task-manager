@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->text('description')->nullable();
-            $table->enum('status', ['OPENED', 'CLOSED'])->default('OPENED');
+            $table->enum('status', ['OPENED', 'IN_PROGRESS', 'CLOSED'])->default('OPENED');
             $table->date('due_date')->nullable();
             $table->timestamps();
         });

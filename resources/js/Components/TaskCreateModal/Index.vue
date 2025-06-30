@@ -58,30 +58,61 @@
 </template>
 
 <script setup>
-import { useForm } from '@inertiajs/vue3'
-import { defineEmits } from 'vue'
+import { ref, watch, defineProps, defineEmits } from 'vue'
+import { Inertia } from '@inertiajs/inertia'
+import axios from 'axios';
 
-const emits = defineEmits(['created', 'close'])
+const props = defineProps({
+  task: Object, 
+})
+const emit = defineEmits(['close', 'created'])
 
-const form = useForm({
+const form = ref({
   title: '',
   description: '',
-  due_date: '',
   status: 'OPENED',
+  due_date: '',
 })
 
+watch(
+  () => props.task,
+  (newTask) => {
+    if (newTask) {
+      form.value = {
+        title: newTask.title,
+        description: newTask.description,
+        status: newTask.status,
+        due_date: newTask.due_date,
+      }
+    } else {
+      form.value = {
+        title: '',
+        description: '',
+        status: 'OPENED',
+        due_date: '',
+      }
+    }
+  },
+  { immediate: true }
+)
+
 function close() {
-  emits('close')
+  emit("close")
 }
 
 function submit() {
-  form.post('/tasks', {
-    preserveScroll: true,
-    onSuccess: () => {
-      emits('created', form.data)
-      close()
-    },
-  })
+  if (props.task) {
+    axios.put(`/tasks/${props.task.id}`, form.value).then(({data}) => {
+      emit('close', {...data.task, id: props.task.id})
+    })
+  } else {
+    Inertia.post('/tasks', form.value, {
+      onSuccess: (res) => {
+        emit('created', res.props?.task) 
+      },
+    })
+  }
 }
 </script>
+
 

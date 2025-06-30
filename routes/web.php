@@ -9,3 +9,5 @@ Route::get('/', function () {
 });
 
 Route::resource('tasks', TaskController::class);
+Route::put('/tasks/{task}/status', [TaskController::class, 'updateStatus']);
+Route::post('/tasks/reorder', [TaskController::class, 'reorder']); 

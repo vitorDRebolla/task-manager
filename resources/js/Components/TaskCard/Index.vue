@@ -1,22 +1,68 @@
 <template>
-    <h3 class="task-title">{{ task.title }}</h3>
-    <p class="task-date">Due: {{ formatDate(task.due_date) }}</p>
-    <div class="task-actions">
-        <Link 
-        :href="`/tasks/${task.id}/edit`" 
-        class="btn-edit"
-        >✏️</Link>
-        <button 
-        @click="destroy(task.id)" 
-        class="btn-delete"
-        >🗑️</button>
+  <div
+      class="bg-white shadow-md rounded-lg p-4 hover:shadow-lg transition-shadow mb-4 cursor-pointer"
+     :data-id="task.id"
+  >
+    <h3 class="text-lg font-semibold text-gray-800 mb-1">{{ task.title }}</h3>
+    <span>{{ task.description }}</span>
+    <p class="text-sm text-gray-500 mb-4">Due: {{ formatDate(task.due_date) }}</p>
+    <div class="flex items-center justify-end gap-2">
+      <button
+        @click="emit('edit', task)"
+        class="text-blue-600 hover:bg-blue-100 rounded-full p-2 transition-colors cursor-pointer"
+        title="Edit Task"
+      >
+        ✏️
+      </button>
+      <button
+        @click="showConfirm = true"
+        class="text-red-600 hover:bg-red-100 rounded-full p-2 transition-colors cursor-pointer"
+        title="Delete Task"
+      >
+        🗑️
+      </button>
     </div>
+
+    <div v-if="showConfirm" class="fixed inset-0 flex items-center justify-center bg-black/40">
+      <div class="bg-white rounded-lg p-6 w-80">
+        <h4 class="text-lg font-semibold mb-4">Remove task?</h4>
+        <p class="text-gray-600 mb-6">Are you sure you want to delete this task?</p>
+        <div class="flex justify-end gap-2">
+          <button @click="showConfirm = false" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 cursor-pointer">Cancel</button>
+          <button 
+            @click.prevent="confirmDelete" 
+            type="button" 
+            class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 cursor-pointer">
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
-import dayjs from 'dayjs'
+import { ref } from 'vue'
+import { defineEmits } from 'vue';
+import axios from 'axios';
+
+const props = defineProps({
+  task: Object,
+})
+
+const emit = defineEmits(['deleted', 'edit']);
+
+const showConfirm = ref(false)
 
 function formatDate(date) {
-  return dayjs(date).format('DD/MM/YYYY')
+  return new Date(date).toLocaleDateString()
 }
+
+function confirmDelete() {
+  axios.delete(`/tasks/${props.task.id}`).then(() => {
+    showConfirm.value = false;
+    emit('deleted', props.task.id);
+  });
+}
+
 </script>
