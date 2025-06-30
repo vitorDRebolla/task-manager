@@ -27,23 +27,35 @@ cd task-manager
 ```
 
 ### 2. Install PHP and JavaScript dependencies
+```bash
 composer install
 npm install
+```
 
 ### 3. Configure environment variables
+```bash
 cp .env.example .env
+```
 
 ### 4. Generate application key
+```bash
 php artisan key:generate
+```
 
 ### 5. Run migrations
+```bash
 php artisan migrate
+```
 
 ### 6. Start the development server
+```bash
 php artisan serve
+```
 
 ### 7. Compile frontend assets with Vite
+```bash
 npm run dev
+```
 
 Visit: http://localhost:8000
 
