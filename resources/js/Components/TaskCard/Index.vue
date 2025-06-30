@@ -23,7 +23,7 @@
       </button>
     </div>
 
-    <div v-if="showConfirm" class="fixed inset-0 flex items-center justify-center bg-black/40">
+    <div v-if="showConfirm" class="fixed inset-0 flex items-center justify-center bg-black/40" @click.self="showConfirm = false">
       <div class="bg-white rounded-lg p-6 w-80">
         <h4 class="text-lg font-semibold mb-4">Remove task?</h4>
         <p class="text-gray-600 mb-6">Are you sure you want to delete this task?</p>
@@ -32,9 +32,13 @@
           <button 
             @click.prevent="confirmDelete" 
             type="button" 
-            class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 cursor-pointer">
-            Delete
+            :disabled="isDeleting"
+            class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <span v-if="isDeleting">Deleting...</span>
+            <span v-else>Delete</span>
           </button>
+
         </div>
       </div>
     </div>
@@ -58,10 +62,16 @@ function formatDate(date) {
   return new Date(date).toLocaleDateString()
 }
 
+const isDeleting = ref(false)
+
 function confirmDelete() {
+  isDeleting.value = true;
+
   axios.delete(`/tasks/${props.task.id}`).then(() => {
     showConfirm.value = false;
     emit('deleted', props.task.id);
+  }).finally(() => {
+    isDeleting.value = false;
   });
 }
 

@@ -100,19 +100,42 @@ function close() {
   emit("close")
 }
 
+const loading = ref(false)
+const error = ref('')
+
 function submit() {
+  loading.value = true
+  error.value = ''
+
   if (props.task) {
-    axios.put(`/tasks/${props.task.id}`, form.value).then(({data}) => {
-      emit('close', {...data.task, id: props.task.id})
-    })
-  } else {
-    Inertia.post('/tasks', form.value, {
+    axios
+      .put(`/tasks/${props.task.id}`, form.value)
+      .then(({ data }) => {
+        emit('close', { ...data.task, id: props.task.id })
+      })
+      .catch(() => {
+        error.value = 'Something went wrong while saving.'
+      })
+      .finally(() => {
+        loading.value = false
+      })
+
+      return;
+  } 
+
+  Inertia.post('/tasks', form.value, {
       onSuccess: (res) => {
-        emit('created', res.props?.task) 
+        emit('created', res.props?.task)
+      },
+      onError: () => {
+        error.value = 'Something went wrong while saving.'
+      },
+      onFinish: () => {
+        loading.value = false
       },
     })
-  }
 }
+
 </script>
 
 
