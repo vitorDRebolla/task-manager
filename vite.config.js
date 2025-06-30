@@ -1,7 +1,7 @@
-import { defineConfig } from 'vite';
-import laravel from 'laravel-vite-plugin';
-import vue from '@vitejs/plugin-vue';
-import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill';
+import { defineConfig } from 'vite'
+import laravel from 'laravel-vite-plugin'
+import vue from '@vitejs/plugin-vue'
+import path from 'path'
 
 export default defineConfig({
   plugins: [
@@ -11,15 +11,9 @@ export default defineConfig({
       refresh: true,
     }),
   ],
-  optimizeDeps: {
-    esbuildOptions: {
-      define: { global: 'globalThis' },
-      plugins: [
-        NodeGlobalsPolyfillPlugin({
-          buffer: true,
-          globals: { crypto: true },
-        }),
-      ],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, 'resources/js'),
     },
   },
-});
+})

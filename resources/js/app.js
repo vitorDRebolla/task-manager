@@ -1,28 +1,14 @@
 import { createApp, h } from 'vue'
-import { createInertiaApp } from '@inertiajs/inertia-vue3'
-import { InertiaProgress } from '@inertiajs/progress'
-import { createPinia } from 'pinia'
-
-const pages = import.meta.glob('./Pages/**/*.vue')
+import { createInertiaApp } from '@inertiajs/vue3'
 
 createInertiaApp({
-  resolve: async (name) => {
-    const importPage = pages[`./Pages/${name}.vue`]
-    if (!importPage) {
-      throw new Error(`Página ${name} não encontrada em /resources/js/Pages`)
-    }
-    const module = await importPage()
-    return module.default
+  resolve: name => {
+    const pages = import.meta.glob('./Pages/**/*.vue', { eager: true })
+    return pages[`./Pages/${name}.vue`]
   },
-  
-  // 2) Setup padrão
   setup({ el, App, props, plugin }) {
-    const app = createApp({ render: () => h(App, props) })
-    app.use(plugin)
-    app.use(createPinia())
-    app.mount(el)
+    createApp({ render: () => h(App, props) })
+      .use(plugin)
+      .mount(el)
   },
 })
-
-// Barra de progresso do Inertia
-InertiaProgress.init()

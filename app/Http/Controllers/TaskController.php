@@ -9,10 +9,14 @@ use Inertia\Inertia;
 class TaskController extends Controller
 {
     public function index()
-    {
-        $tasks = Task::orderBy('created_at', 'desc')->paginate(10);
-        return Inertia::render('Tasks/Index', compact('tasks'));
-    }
+{
+    $tasks = Task::all();
+
+    return inertia('Tasks/Index', [
+        'tasks' => $tasks,
+    ]);
+}
+
 
     public function create()
     {
@@ -22,14 +26,21 @@ class TaskController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'title' => 'required|string|max:255',
+            'title'       => 'required|string|max:255',
             'description' => 'nullable|string',
-            'status' => 'required|in:OPENED,CLOSED',
-            'due_date' => 'nullable|date',
+            'status'      => 'required|in:OPENED,CLOSED',
+            'due_date'    => 'nullable|date',
         ]);
-        Task::create($data);
+
+        $task = Task::create($data);
+
+        if ($request->wantsJson()) {
+            return response()->json($task, 201);
+        }
+
         return redirect()->route('tasks.index');
     }
+
 
     public function edit(Task $task)
     {
